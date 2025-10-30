@@ -179,8 +179,8 @@ if uploaded:
     # ============================================================
     # PART A
     # ============================================================
-    if mode == "Part A (Basics)":
-        st.header("Part A – Basic Processing")
+    if mode == "🎨 Part A (Basics)":
+    st.header("Part A – Basic Processing")
 
         a1 = st.checkbox("Show Grayscale / HSV / Binary", value=True)
         if a1:
@@ -453,6 +453,7 @@ if uploaded:
                     mime="application/pdf",
                     key="bin_pdf_dl"
                 )
+
 
 
 
