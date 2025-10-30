@@ -363,36 +363,38 @@ if uploaded:
             _HAS_TESS = False
 
         # --- small helpers (local to this block to avoid changing the top of your file) ---
-            def _preprocess_for_ocr(img_bgr: np.ndarray) -> np.ndarray:
-                """Grayscale + light denoise + adaptive threshold for better OCR."""
-                gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-                gray = cv2.medianBlur(gray, 3)
-                th = cv2.adaptiveThreshold(
+        def _preprocess_for_ocr(img_bgr: np.ndarray) -> np.ndarray:
+            """Grayscale + light denoise + adaptive threshold for better OCR."""
+            gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+            gray = cv2.medianBlur(gray, 3)
+            th = cv2.adaptiveThreshold(
                 gray,
                 255,
-                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,  # ✅ fixed constant name
+                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,  # fixed constant name
                 cv2.THRESH_BINARY,
                 31,
                 10
             )
-             return th
+            return th
 
-
-
-        def _preprocess_for_ocr(img_bgr: np.ndarray) -> np.ndarray:
-    """Grayscale + light denoise + adaptive threshold for better OCR."""
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    gray = cv2.medianBlur(gray, 3)
-    th = cv2.adaptiveThreshold(
-        gray,
-        255,
-        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,  # ✅ fixed constant name
-        cv2.THRESH_BINARY,
-        31,
-        10
-    )
-    return th
-)
+        def _text_to_pdf_bytes(text: str, title: str = "Extracted Text") -> bytes:
+            """Render plain text to a single-page PDF (A4) via Matplotlib."""
+            from io import BytesIO
+            buf = BytesIO()
+            fig = plt.figure(figsize=(8.27, 11.69))  # A4 portrait
+            fig.subplots_adjust(left=0.06, right=0.94, top=0.94, bottom=0.06)
+            ax = fig.add_subplot(111)
+            ax.axis("off")
+            ax.set_title(title, fontsize=14)
+            ax.text(
+                0, 1,
+                text.replace("\t", "    "),
+                va="top", ha="left",
+                fontsize=10, family="monospace", wrap=True
+            )
+            fig.savefig(buf, format="pdf")
+            plt.close(fig)
+            return buf.getvalue()
         # --- end helpers ---
 
         st.header("Text Extract (OCR)")
@@ -450,6 +452,7 @@ if uploaded:
                     mime="application/pdf",
                     key="bin_pdf_dl"
                 )
+
 
 
 
