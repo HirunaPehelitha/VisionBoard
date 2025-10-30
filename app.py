@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+import pytesseract
 
 st.set_page_config(page_title="EduVision - Educational Image Processing App", layout="wide")
 
@@ -452,6 +453,7 @@ if uploaded:
                     mime="application/pdf",
                     key="bin_pdf_dl"
                 )
+
 
 
 
