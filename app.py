@@ -9,9 +9,6 @@ import streamlit as st
 
 st.set_page_config(page_title="EduVision - Educational Image Processing App", layout="wide")
 
-st.title("🎓 VisionBoard")
-st.caption("Empowering learning through intelligent image enhancement.")
-
 
 # -------------------------
 # Helpers
@@ -279,4 +276,5 @@ if uploaded:
 
 else:
     st.info("👆 Upload a PNG/JPG to begin.")
+
 
