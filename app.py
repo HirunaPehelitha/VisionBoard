@@ -75,36 +75,105 @@ def download_button(image_bgr: np.ndarray, label: str, key: str):
         st.download_button(label, buf.tobytes(), file_name="output.png", mime="image/png", key=key)
 
 # -------------------------
-# UI
 # -------------------------
-st.title("🎓 VisionBoard")
-st.caption("Empowering learning through intelligent image enhancement.")
+# 🌈 Enhanced Colorful UI
+# -------------------------
+st.markdown(
+    """
+    <style>
+        /* Background gradient */
+        .stApp {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8fff3 50%, #fff5ef 100%);
+        }
 
-uploaded = st.file_uploader("Upload an image (PNG/JPG)", type=["png", "jpg", "jpeg"])
+        /* Sidebar styling */
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #0077b6, #00b4d8);
+            color: white;
+        }
+        section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] div {
+            color: white !important;
+        }
+
+        /* Title and caption styling */
+        h1 {
+            color: #004aad !important;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        p {
+            font-size: 16px;
+            color: #333333;
+        }
+
+        /* Upload box styling */
+        .uploadedFile {
+            border: 2px dashed #0096c7 !important;
+            border-radius: 10px;
+            background-color: #f0fcff !important;
+        }
+
+        /* Divider line */
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, #48cae4, #00b4d8, #0096c7);
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* Subheaders */
+        .stMarkdown h3, .stMarkdown h2, .stMarkdown h4 {
+            color: #0077b6 !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Main title and caption
+st.markdown("<h1 style='text-align:center;'>🎓 VisionBoard</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<p style='text-align:center; font-size:18px; color:#444;'>✨ Empowering learning through intelligent image enhancement ✨</p>",
+    unsafe_allow_html=True
+)
+
+uploaded = st.file_uploader("📂 Upload an image (PNG/JPG)", type=["png", "jpg", "jpeg"])
 
 if uploaded:
     img_bgr = read_image(uploaded)
     if img_bgr is None:
-        st.error("Could not read the image. Try another file.")
+        st.error("❌ Could not read the image. Try another file.")
         st.stop()
 
     # Show original + metadata
     col0, col1 = st.columns([2, 1])
     with col0:
-        st.subheader("Original")
-        st.image(to_rgb(img_bgr), channels="RGB", use_column_width=True)
+        st.markdown("### 🖼️ Original Image")
+        st.image(to_rgb(img_bgr), channels="RGB", use_column_width=True, caption="Uploaded Image")
+
     with col1:
         h, w = img_bgr.shape[:2]
         ch = img_bgr.shape[2] if len(img_bgr.shape) == 3 else 1
-        st.markdown("**Metadata**")
-        st.write({
-            "width": w, "height": h, "channels": ch,
-            "dtype": str(img_bgr.dtype),
-            "total_pixels": int(img_bgr.size)
-        })
+        st.markdown("### 📊 Image Metadata")
+        st.success(f"**Resolution:** {w} × {h}")
+        st.info(f"**Channels:** {ch}")
+        st.warning(f"**Data Type:** {img_bgr.dtype}")
+        st.write(f"**Total Pixels:** {int(img_bgr.size):,}")
 
-    st.markdown("---")
-    mode = st.sidebar.radio("Workspace", ["Part A (Basics)", "Part B (Advanced)", "Whiteboard Preset"])
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    # Sidebar style
+    st.sidebar.markdown("## 🎛️ Workspace Controls")
+    st.sidebar.markdown(
+        "<p style='font-size:14px;color:white;'>Select which module of VisionBoard you want to explore:</p>",
+        unsafe_allow_html=True
+    )
+    mode = st.sidebar.radio(
+        "Choose a mode:",
+        ["🎨 Part A (Basics)", "⚙️ Part B (Advanced)", "🧾 Whiteboard Preset"]
+    )
+
 
     # ============================================================
     # PART A
@@ -276,5 +345,6 @@ if uploaded:
 
 else:
     st.info("👆 Upload a PNG/JPG to begin.")
+
 
 
