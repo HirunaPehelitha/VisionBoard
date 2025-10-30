@@ -346,5 +346,115 @@ if uploaded:
 else:
     st.info("👆 Upload a PNG/JPG to begin.")
 
+# -------------------------
+# 🔤 Text Extract (OCR) — Add-on (append to end of file)
+# -------------------------
+
+# -------------------------
+# 🔤 Text Extract (OCR) — Add-on (append to end of file)
+# -------------------------
+if uploaded:
+    # Sidebar toggle for the new feature (kept separate from your existing mode switch)
+    st.sidebar.markdown("## 🔤 Text Extraction")
+    enable_ocr = st.sidebar.checkbox("Enable Text Extraction", value=False, key="enable_ocr")
+
+    if enable_ocr:
+        # Try to import Tesseract OCR locally so we don't touch your top imports
+        try:
+            import pytesseract  # type: ignore
+            _HAS_TESS = True
+        except Exception:
+            _HAS_TESS = False
+
+        # --- small helpers (local to this block to avoid changing the top of your file) ---
+        def _preprocess_for_ocr(img_bgr: np.ndarray) -> np.ndarray:
+            """Grayscale + light denoise + adaptive threshold for better OCR."""
+            gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+            gray = cv2.medianBlur(gray, 3)
+            th = cv2.adaptiveThreshold(
+                gray, 255,
+                cv2.ADAPTIVE_THRESH_GAUSSIAN_, cv2.THRESH_BINARY,
+                31, 10
+            )
+            return th
+
+        def _text_to_pdf_bytes(text: str, title: str = "Extracted Text") -> bytes:
+            """Render plain text to a single-page PDF (A4) via Matplotlib."""
+            from io import BytesIO
+            buf = BytesIO()
+            fig = plt.figure(figsize=(8.27, 11.69))  # A4 portrait
+            fig.subplots_adjust(left=0.06, right=0.94, top=0.94, bottom=0.06)
+            ax = fig.add_subplot(111)
+            ax.axis("off")
+            ax.set_title(title, fontsize=14)
+            ax.text(
+                0, 1,
+                text.replace("\t", "    "),
+                va="top", ha="left",
+                fontsize=10, family="monospace", wrap=True
+            )
+            fig.savefig(buf, format="pdf")
+            plt.close(fig)
+            return buf.getvalue()
+        # --- end helpers ---
+
+        st.header("Text Extract (OCR)")
+        st.caption("Convert the image to text and download as a PDF.")
+
+        # Show preprocessing preview
+        proc = _preprocess_for_ocr(img_bgr)
+        st.image(
+            [to_rgb(img_bgr), proc],
+            caption=["Original", "Binarized for OCR"],
+            use_column_width=True, clamp=True
+        )
+
+        if _HAS_TESS:
+            # Try OCR on both normal and inverted; keep the better one
+            txt1 = pytesseract.image_to_string(proc)
+            txt2 = pytesseract.image_to_string(255 - proc)
+            text = txt1 if len(txt1.strip()) >= len(txt2.strip()) else txt2
+            text = text.strip()
+
+            st.text_area("Extracted Text", value=text, height=260, key="ocr_text_area")
+
+            if st.button("Generate PDF from Text", key="make_pdf_btn"):
+                pdf_bytes = _text_to_pdf_bytes(text or "(No text detected)")
+                st.download_button(
+                    "📥 Download Text as PDF",
+                    data=pdf_bytes,
+                    file_name="extracted_text.pdf",
+                    mime="application/pdf",
+                    key="pdf_dl_btn"
+                )
+        else:
+            # Graceful fallback: guide install + offer binary PDF (image, not selectable text)
+            st.error(
+                "Tesseract OCR not detected. Install system Tesseract and the `pytesseract` Python package "
+                "to enable true text extraction."
+            )
+            st.info(
+                "Fallback: you can still download a cleaned **binary PDF** (image-only). "
+                "Use the Whiteboard Preset first if needed for better contrast."
+            )
+
+            if st.button("Generate Binary Image PDF", key="bin_pdf_btn"):
+                from io import BytesIO
+                buf = BytesIO()
+                fig = plt.figure(figsize=(8.27, 11.69))
+                plt.axis("off")
+                plt.imshow(proc, cmap="gray")
+                fig.savefig(buf, format="pdf", bbox_inches="tight", pad_inches=0)
+                plt.close(fig)
+                st.download_button(
+                    "📥 Download Binary as PDF",
+                    data=buf.getvalue(),
+                    file_name="binary_image.pdf",
+                    mime="application/pdf",
+                    key="bin_pdf_dl"
+                )
+
+
+
 
 
