@@ -80,8 +80,8 @@ def download_button(image_bgr: np.ndarray, label: str, key: str):
 # -------------------------
 # UI
 # -------------------------
-st.title("SE3071 Image Processing Web App")
-st.caption("Uses only: OpenCV (cv2), NumPy, Matplotlib, and Streamlit")
+st.title("🎓 VisionBoard")
+st.caption("Empowering learning through intelligent image enhancement.")
 
 uploaded = st.file_uploader("Upload an image (PNG/JPG)", type=["png", "jpg", "jpeg"])
 
@@ -279,3 +279,4 @@ if uploaded:
 
 else:
     st.info("👆 Upload a PNG/JPG to begin.")
+
