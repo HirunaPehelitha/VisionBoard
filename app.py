@@ -349,10 +349,6 @@ else:
 # -------------------------
 # 🔤 Text Extract (OCR) — Add-on (append to end of file)
 # -------------------------
-
-# -------------------------
-# 🔤 Text Extract (OCR) — Add-on (append to end of file)
-# -------------------------
 if uploaded:
     # Sidebar toggle for the new feature (kept separate from your existing mode switch)
     st.sidebar.markdown("## 🔤 Text Extraction")
@@ -368,15 +364,17 @@ if uploaded:
 
         # --- small helpers (local to this block to avoid changing the top of your file) ---
         def _preprocess_for_ocr(img_bgr: np.ndarray) -> np.ndarray:
-            """Grayscale + light denoise + adaptive threshold for better OCR."""
-            gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-            gray = cv2.medianBlur(gray, 3)
-            th = cv2.adaptiveThreshold(
-                gray, 255,
-                cv2.ADAPTIVE_THRESH_GAUSSIAN_, cv2.THRESH_BINARY,
-                31, 10
-            )
-            return th
+    """Grayscale + light denoise + adaptive threshold for better OCR."""
+    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 3)
+    th = cv2.adaptiveThreshold(
+        gray, 255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,  # <- fixed: ends with _C
+        cv2.THRESH_BINARY,
+        31, 10
+    )
+    return th
+
 
         def _text_to_pdf_bytes(text: str, title: str = "Extracted Text") -> bytes:
             """Render plain text to a single-page PDF (A4) via Matplotlib."""
@@ -453,6 +451,7 @@ if uploaded:
                     mime="application/pdf",
                     key="bin_pdf_dl"
                 )
+
 
 
 
